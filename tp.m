@@ -4,8 +4,10 @@
 1;
 
 % Chargement des données
-appr_cl = load("/info/etu/m1/m1015/Documents/aan/data/appr_cl.ascii");
-appr = load("/info/etu/m1/m1015/Documents/aan/data/appr.ascii");
+%appr_cl = load("/info/etu/m1/m1015/Documents/aan/data/appr_cl.ascii");
+appr_cl = load("data/appr_cl.ascii");
+%appr = load("/info/etu/m1/m1015/Documents/aan/data/appr.ascii");
+appr = load("data/appr.ascii");
 
 % Calcul des probabilités à priori P(wi)
 for i = 0:9
