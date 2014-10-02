@@ -28,7 +28,6 @@ end
 
 % Effectuer une ACP de dimension k sur les données X
 % Retourner le vecteur moyen mu et la matrice de projection P
-
 function [mu,P] = acp (X, k)
 	n=size(X,1);
 	mu = mean(X);
@@ -41,7 +40,6 @@ endfunction
 
 % Charger les données, effectuer une ACP pour une dimension k données
 % et sauvegarder le résultat dans un nouveau fichier
-
 function [] = project_data (k)
 	A=load('data/appr.ascii');
 
