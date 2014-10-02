@@ -30,35 +30,36 @@ end
 % Retourner le vecteur moyen mu et la matrice de projection P
 
 function [mu,P] = acp (X, k)
-  n=size(X,1);
-  mu = mean(X);
-  Xmu = X-ones(n,1)*mu;
-  S = Xmu'*Xmu;
- [P evd] = eigs(S,k,'lm');
- ev = diag(evd);
- printf('%5.3f\n', sum(ev));
+	n=size(X,1);
+	mu = mean(X);
+	Xmu = X-ones(n,1)*mu;
+	S = Xmu'*Xmu;
+	[P evd] = eigs(S,k,'lm');
+	ev = diag(evd);
+	printf('%5.3f\n', sum(ev));
 endfunction
 
 % Charger les données, effectuer une ACP pour une dimension k données
 % et sauvegarder le résultat dans un nouveau fichier
 
 function [] = project_data (k)
-  A=load('data/appr.ascii');
+	A=load('data/appr.ascii');
 
-  [mu_all P] = acp(A,k);
-  n = size(A,1);
-  Ap = (A-ones(n,1)*mu_all) * P;  % ici on projète !
-  save 'data/acp/appr-acp.ascii' Ap
+	[mu_all P] = acp(A,k);
+ 	n = size(A,1);
+	Ap = (A-ones(n,1)*mu_all) * P;  % ici on projète !
+  	save 'data/acp/appr-acp.ascii' Ap
 
-  A=load('data/dev.ascii');
-  n = size(A,1);
-  Ap = (A-ones(n,1)*mu_all) * P;
-  save 'data/acp/dev-acp.ascii' Ap
+  	A=load('data/dev.ascii');
+  	n = size(A,1);
+  	Ap = (A-ones(n,1)*mu_all) * P;
+  	save 'data/acp/dev-acp.ascii' Ap
 
-  A=load('data/eval.ascii');
-  n = size(A,1);
-  Ap = (A-ones(n,1)*mu_all) * P;
-  save 'data/acp/eval-acp.ascii' Ap
+  	A=load('data/eval.ascii');
+  	n = size(A,1);
+  	Ap = (A-ones(n,1)*mu_all) * P;
+  	save 'data/acp/eval-acp.ascii' Ap
 endfunction
 
+% On teste arbitrairement avec 10 (il faut tester des valeurs entre 10 et 100 pour rappel)
 project_data(10);
