@@ -26,8 +26,8 @@ end
 % C'est à vous de trouver la dimension de la projection qui donne les meilleures performances
 % Vous pouvez explorer des valeurs entre 10 et 100.
 
-% effectuer une ACP de dimension k sur les données X
-% retourner le vecteur moyen mu et la matrice de projection P
+% Effectuer une ACP de dimension k sur les données X
+% Retourner le vecteur moyen mu et la matrice de projection P
 
 function [mu,P] = acp (X, k)
   n=size(X,1);
@@ -39,24 +39,26 @@ function [mu,P] = acp (X, k)
  printf('%5.3f\n', sum(ev));
 endfunction
 
-% charger les données, effectuer une ACP pour une dimesion k données
-% et sauvegarder le résultats dans un nouveau fichier
+% Charger les données, effectuer une ACP pour une dimension k données
+% et sauvegarder le résultat dans un nouveau fichier
 
 function [] = project_data (k)
-  A=load('chars/matlab/appr.ascii');
+  A=load('data/appr.ascii');
 
   [mu_all P] = acp(A,k);
   n = size(A,1);
   Ap = (A-ones(n,1)*mu_all) * P;  % ici on projète !
-  save 'appr-acp.ascii' Ap
+  save 'data/acp/appr-acp.ascii' Ap
 
-  A=load('chars/matlab/dev.ascii');
+  A=load('data/dev.ascii');
   n = size(A,1);
   Ap = (A-ones(n,1)*mu_all) * P;
-  save 'dev-acp.ascii' Ap
+  save 'data/acp/dev-acp.ascii' Ap
 
-  A=load('chars/matlab/eval.ascii');
+  A=load('data/eval.ascii');
   n = size(A,1);
   Ap = (A-ones(n,1)*mu_all) * P;
-  save 'eval-acp.ascii' Ap
+  save 'data/acp/eval-acp.ascii' Ap
 endfunction
+
+project_data(10);
