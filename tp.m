@@ -62,17 +62,18 @@ endfunction
 % On teste arbitrairement avec une valeur entre 10 et 100
 project_data(10);
 
+% Chargement des données
 appr_cl = load("data/appr_cl.ascii");
-appr = load("data/acp/appr-acp.ascii");
+appr_acp = load("data/acp/appr-acp.ascii");
 
 for i = 0:9
 	% Calcul des probabilités à priori P(wi)
 	pwi(i+1) = mean(appr_cl(:) == i);
 	
 	% Calcul des probabilités conditionnelles P(x|wi)
-	% Moyenne ui (vecteur de dimension 256)
-	ui(i+1,:) = mean(appr.Ap(find(appr_cl(:) == i),:));
+	% Moyenne ui pour chaque classe
+	ui(i+1,:) = mean(appr_acp.Ap(find(appr_cl(:) == i),:));
 	
-	% Calcul des covariances
-	covar(i+1,:,:) = cov(appr.Ap(find(appr_cl(:) == i),:));	
+	% Calcul des covariances matrice dxd pour chaque classe
+	covar(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
 end
