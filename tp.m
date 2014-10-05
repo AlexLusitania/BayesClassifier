@@ -4,20 +4,20 @@
 1;
 
 % Chargement des données
-appr_cl = load("data/appr_cl.ascii");
-appr = load("data/appr.ascii");
-
-for i = 0:9
-	% Calcul des probabilités à priori P(wi)
-	pwi(i+1) = mean(appr_cl(:) == i);
-	
-	% Calcul des probabilités conditionnelles P(x|wi)
-	% Moyenne ui (vecteur de dimension 256)
-	ui(i+1,:) = mean(appr(find(appr_cl(:) == i),:));
-	
-	% Calcul des covariances
-	covar(i+1,:,:) = cov(appr(find(appr_cl(:) == i),:));	
-end
+%appr_cl = load("data/appr_cl.ascii");
+%appr = load("data/appr.ascii");
+%
+%for i = 0:9
+%	% Calcul des probabilités à priori P(wi)
+%	pwi(i+1) = mean(appr_cl(:) == i);
+%	
+%	% Calcul des probabilités conditionnelles P(x|wi)
+%	% Moyenne ui (vecteur de dimension 256)
+%	ui(i+1,:) = mean(appr(find(appr_cl(:) == i),:));
+%	
+%	% Calcul des covariances
+%	covar(i+1,:,:) = cov(appr(find(appr_cl(:) == i),:));	
+%end
 
 % ACP
 % Cette technique permet de réduire la dimension des données.
@@ -59,5 +59,20 @@ function [] = project_data (k)
   	save 'data/acp/eval-acp.ascii' Ap
 endfunction
 
-% On teste arbitrairement avec 10 (il faut tester des valeurs entre 10 et 100 pour rappel)
+% On teste arbitrairement avec une valeur entre 10 et 100
 project_data(10);
+
+appr_cl = load("data/appr_cl.ascii");
+appr = load("data/acp/appr-acp.ascii");
+
+for i = 0:9
+	% Calcul des probabilités à priori P(wi)
+	pwi(i+1) = mean(appr_cl(:) == i);
+	
+	% Calcul des probabilités conditionnelles P(x|wi)
+	% Moyenne ui (vecteur de dimension 256)
+	ui(i+1,:) = mean(appr.Ap(find(appr_cl(:) == i),:));
+	
+	% Calcul des covariances
+	covar(i+1,:,:) = cov(appr.Ap(find(appr_cl(:) == i),:));	
+end
