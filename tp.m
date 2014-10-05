@@ -77,3 +77,8 @@ for i = 0:9
 	% Calcul des covariances matrice dxd pour chaque classe
 	covar(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
 end
+
+% Calcul de la Gaussienne pour chaque classe
+function res = gaussienne (cl,x)
+	res = 1/(sqrt(2*pi)*covar(:,:,0+1)^(1/10))*exp((-1/2)*(x-ui(0+1))'*inv(covar(:,:,0+1))*(x-ui(0+1)));
+endfunction
