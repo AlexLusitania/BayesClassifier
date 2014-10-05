@@ -80,5 +80,5 @@ end
 
 % Calcul de la Gaussienne pour chaque classe
 function res = gaussienne (cl,x)
-	res = 1/(sqrt(2*pi)*covar(:,:,0+1)^(1/10))*exp((-1/2)*(x-ui(0+1))'*inv(covar(:,:,0+1))*(x-ui(0+1)));
+	res = 1/(sqrt(2*pi)*covar(:,:,cl+1)^(1/10))*exp((-1/2)*(x-ui(cl+1))'*inv(covar(:,:,cl+1))*(x-ui(cl+1)));
 endfunction
