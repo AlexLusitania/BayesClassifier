@@ -3,4 +3,5 @@
 octave-workspace
 octave-workspace/
 octave-workspace/*
-data/acp/*.ascii
+data/acp/*
+data/acp/
