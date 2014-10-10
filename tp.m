@@ -64,7 +64,7 @@ end
 
 % Calcul de la Gaussienne pour chaque classe
 function res = gaussienne (cl,x,covariance,ui)
-	res = 1/(sqrt(2*pi)*det(covariance(:,:,cl+1))^(1/2))*exp((-1/2)*(x-ui(cl+1,:))*inv(covariance(:,:,cl+1))*(x'-ui(cl+1,:)'));
+	res = 1 / (sqrt(2*pi)*det(reshape(covariance(cl+1,:,:),[10,10]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[10,10]))*(x'-ui(cl+1,:)'));
 endfunction
 
 % Phase de classification
@@ -75,5 +75,17 @@ dev_acp = load("data/acp/dev-acp.ascii");
 
 erreurs = 0;
 for i = 1:size(dev_acp.Ap,1)
-	
+	for j = 0:9
+		p(j+1) = gaussienne(j,dev_acp.Ap(i,:),covariance,ui);
+	end
+	[pmax, indice] = max(p);
+	if (indice-1 ~= dev_cl(i))
+		erreurs = erreurs+1;
+	end
 end
+
+disp("Nombre d'erreurs : ")
+erreurs
+disp("Pourcentage : ")
+erreurs*100/5000
+
