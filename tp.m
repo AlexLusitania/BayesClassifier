@@ -76,7 +76,7 @@ dev_acp = load("data/acp/dev-acp.ascii");
 erreurs = 0;
 for i = 1:size(dev_acp.Ap,1)
 	for j = 0:9
-		p(j+1) = gaussienne(j,dev_acp.Ap(i,:),covariance,ui);
+		p(j+1) = gaussienne(j,dev_acp.Ap(i,:),covariance,ui)*pwi(j+1);
 	end
 	[pmax, indice] = max(p);
 	if (indice-1 ~= dev_cl(i))
