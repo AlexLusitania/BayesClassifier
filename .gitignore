@@ -5,3 +5,6 @@ octave-workspace/
 octave-workspace/*
 data/acp/*
 data/acp/
+data/acp/appr-acp.ascii
+data/acp/dev-acp.ascii
+data/acp/eval-acp.ascii
