@@ -84,8 +84,10 @@ for i = 1:size(dev_acp.Ap,1)
 	end
 end
 
+% Affichage du nombre d'erreurs
 disp("Nombre d'erreurs : ")
 erreurs
-disp("Pourcentage : ")
-erreurs*100/5000
 
+% Affichage du pourcentage d'erreur
+disp("Pourcentage : ")
+erreurs*100/(size(dev_acp.Ap,1)
