@@ -59,12 +59,12 @@ for i = 0:9
 	ui(i+1,:) = mean(appr_acp.Ap(find(appr_cl(:) == i),:));
 	
 	% Calcul des covariances matrice dxd pour chaque classe
-	covar(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
+	covariance(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
 end
 
 % Calcul de la Gaussienne pour chaque classe
-function res = gaussienne (cl,x)
-	res = 1/(sqrt(2*pi)*covar(:,:,cl+1)^(1/2))*exp((-1/2)*(x-ui(cl+1))'*inv(covar(:,:,cl+1))*(x-ui(cl+1)));
+function res = gaussienne (cl,x,covariance,ui)
+	res = 1/(sqrt(2*pi)*det(covariance(:,:,cl+1))^(1/2))*exp((-1/2)*(x-ui(cl+1,:))*inv(covariance(:,:,cl+1))*(x'-ui(cl+1,:)'));
 endfunction
 
 % Phase de classification
@@ -73,4 +73,7 @@ endfunction
 dev_cl = load("data/dev_cl.ascii");
 dev_acp = load("data/acp/dev-acp.ascii");
 
-
+erreurs = 0;
+for i = 1:size(dev_acp.Ap,1)
+	
+end
