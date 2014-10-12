@@ -1,17 +1,21 @@
-% TP - Classifieur Bayésien
+% Apprentissage Automatique Numérique
+% TP1 - Classifieur Bayésien
 % Alexandre Pais Gomes
 
+% Précise à octave que ce fichier est un fichier de script
 1;
 
-% ACP
+%%%%%%%%%%%%%
+%%%% ACP %%%%
+%%%%%%%%%%%%%
 % Cette technique permet de réduire la dimension des données.
 % Ceci est nécessaire puisque certains points des images ont toujours la même valeur,
 % la variance est donc zéro et la matrice de covariance n'est pas inversible.
 % C'est à vous de trouver la dimension de la projection qui donne les meilleures performances
 % Vous pouvez explorer des valeurs entre 10 et 100.
 
-% Effectuer une ACP de dimension k sur les données X
-% Retourner le vecteur moyen mu et la matrice de projection P
+% Effectue une ACP de dimension k sur les données X
+% Retourne le vecteur moyen mu et la matrice de projection P
 function [mu,P] = acp (X, k)
 	n=size(X,1);
 	mu = mean(X);
@@ -22,8 +26,8 @@ function [mu,P] = acp (X, k)
 	printf('%5.3f\n', sum(ev));
 endfunction
 
-% Charger les données, effectuer une ACP pour une dimension k données
-% et sauvegarder le résultat dans un nouveau fichier
+% Charge les données, effectue une ACP pour une dimension k données
+% et sauvegarde le résultat dans un nouveau fichier
 function [] = project_data (k)
 	A=load('data/appr.ascii');
 
@@ -46,6 +50,10 @@ endfunction
 % On teste arbitrairement avec une valeur entre 10 et 100
 project_data(10);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Phase d'apprentissage %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Chargement des données
 appr_cl = load("data/appr_cl.ascii");
 appr_acp = load("data/acp/appr-acp.ascii");
@@ -62,27 +70,31 @@ for i = 0:9
 	covariance(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
 end
 
-% Calcul de la Gaussienne pour chaque classe
+% Fonction qui retourne la gaussienne d'une classe donnée cl, sur une donnée x, à l'aide de la covariance et la moyenne de la classe
 function res = gaussienne (cl,x,covariance,ui)
 	res = 1 / (sqrt(2*pi)*det(reshape(covariance(cl+1,:,:),[10,10]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[10,10]))*(x'-ui(cl+1,:)'));
 endfunction
 
-% Phase de classification
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Phase de classification %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Traitement séquentiel des exemples du corpus de développement
 dev_cl = load("data/dev_cl.ascii");
 dev_acp = load("data/acp/dev-acp.ascii");
 
+% On compte les erreurs
 erreurs = 0;
-for i = 1:size(dev_acp.Ap,1)
+for i = 1:size(dev_acp.Ap,1) % Pour chacun des exemples
 	for j = 0:9
-		p(j+1) = gaussienne(j,dev_acp.Ap(i,:),covariance,ui)*pwi(j+1);
-	end
-	[pmax, indice] = max(p);
+		p(j+1) = gaussienne(j,dev_acp.Ap(i,:),covariance,ui)*pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+	endfor
+	[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
 	if (indice-1 ~= dev_cl(i))
-		erreurs = erreurs+1;
-	end
-end
+		erreurs = erreurs+1; % Si cette classe n'est pas la bonne, on ajoute une erreur à notre système
+		% On ajoute cette erreur au tableau de confusion
+	endif
+endfor
 
 % Affichage du nombre d'erreurs
 disp("Nombre d'erreurs : ")
@@ -90,4 +102,10 @@ erreurs
 
 % Affichage du pourcentage d'erreur
 disp("Pourcentage : ")
-erreurs*100/(size(dev_acp.Ap,1)
+erreurs*100/(size(dev_acp.Ap,1))
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Phase d'évaluation %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
