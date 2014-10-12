@@ -63,70 +63,73 @@ endfor
 
 % On teste avec toutes les valeurs de projection entre 10 et 100
 % L'objectif étant de trouver le meilleur d qui permet d'avoir le moins d'erreur
-for i = 10:100
-	clear ui;
-	clear covariance;
-	clear appr_acp;
-	clear dev_acp;
-	d = i;
-	project_data(d); % On effectue une ACP de dimension d
+% ATTENTION cette opération peut durer très longtemps (plus d'une heure), à exécuter qu'en cas de réelle nécessité (mettre best_d à 1 si besoin)
+best_d = 0;
+if (best_d == 1)
+	for i = 10:100 % On essaie d entre 10 et 100 arbitrairement
+		% On nettoie les variables qui vont changer de taille pour éviter les "dimensions mismatch"	
+		clear ui;
+		clear covariance;
+		clear appr_acp;
+		clear dev_acp;
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%% Phase d'apprentissage %%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		d = i;
+		project_data(d); % On effectue une ACP de dimension d (ou dimension i d'une certaine façon)
 
-	% Chargement des nouvelles données ACP
-	appr_acp = load("data/acp/appr-acp.ascii");
-	dev_acp = load("data/acp/dev-acp.ascii");
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%% Phase d'apprentissage %%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	for i = 0:9
-		% Calcul des probabilités conditionnelles P(x|wi)
-		% Moyenne ui pour chaque classe
-		ui(i+1,:) = mean(appr_acp.Ap(find(appr_cl(:) == i),:));
+		% Chargement des nouvelles données ACP
+		appr_acp = load("data/acp/appr-acp.ascii");
+		dev_acp = load("data/acp/dev-acp.ascii");
+
+		for i = 0:9
+			% Moyenne ui pour chaque classe
+			ui(i+1,:) = mean(appr_acp.Ap(find(appr_cl(:) == i),:));
 	
-		% Calcul des covariances (matrice d*d) pour chaque classe
-		covariance(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
-	end
+			% Calcul des covariances (matrice d*d) pour chaque classe
+			covariance(i+1,:,:) = cov(appr_acp.Ap(find(appr_cl(:) == i),:));	
+		end
 
-	% Fonction qui retourne la gaussienne d'une classe donnée cl, sur une donnée x, à l'aide de la covariance et la moyenne de la classe
-	%function res = gaussienne (cl, x, covariance, ui, d)
-	%	res = 1 / (sqrt(2*pi) * det(reshape(covariance(cl+1,:,:),[d,d]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[d,d]))*(x'-ui(cl+1,:)'));
-	%endfunction
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%% Phase de classification %%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%% Phase de classification %%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	% Traitement séquentiel des exemples du corpus de développement, on compte les erreurs
-	erreurs = 0;
-	for i = 1:size(dev_acp.Ap, 1) % Pour chacun des exemples du corpus de dév
-		for j = 0:9
-			p(j+1) = gaussienne(j, dev_acp.Ap(i,:), covariance, ui, d) * pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+		% Traitement séquentiel des exemples du corpus de développement, on compte les erreurs
+		erreurs = 0;
+		for i = 1:size(dev_acp.Ap, 1) % Pour chacun des exemples du corpus de dév
+			for j = 0:9
+				p(j+1) = gaussienne(j, dev_acp.Ap(i,:), covariance, ui, d) * pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+			endfor
+			[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
+			if (indice-1 ~= dev_cl(i))
+				erreurs = erreurs+1; % Si cette classe n'est pas la bonne, on ajoute une erreur à notre système
+			endif
 		endfor
-		[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
-		if (indice-1 ~= dev_cl(i))
-			erreurs = erreurs+1; % Si cette classe n'est pas la bonne, on ajoute une erreur à notre système
-			% On ajoute cette erreur au tableau de confusion
-		endif
+
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+		%%%% Affichage des résultats %%%%
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		% Affichage du nombre d'erreurs
+		disp(["Nombre d'erreurs avec d=", num2str(d), " : ", num2str(erreurs)])
+		% Affichage du pourcentage d'erreur
+		disp(["Soit un pourcentage d'erreur de : ", num2str(erreurs*100/(size(dev_acp.Ap,1))), '%'])
+
 	endfor
+endif
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%% Affichage des résultats %%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	% Affichage du nombre d'erreurs
-	disp(["Nombre d'erreurs avec d=", num2str(d), " : ", num2str(erreurs)])
-	% Affichage du pourcentage d'erreur
-	disp(["Soit un pourcentage d'erreur de : ", num2str(erreurs*100/(size(dev_acp.Ap,1))), '%'])
-
-endfor
-
-% Le meilleur d est donc 35 et 36 avec 3,36% d'erreurs dans les 2 cas (soit 168 erreurs sur les 5 000 exemples du corpus de développement)
+% Lors de l'exécution, on remarque que le meilleur d est donc 35 et 36 avec 3,36% d'erreurs dans les 2 cas
+% Soit 168 erreurs sur les 5 000 exemples du corpus de développement
 % Je choisis d=36 car d=37 et d=38 ont respectivement 3,44% et 3,40% d'erreurs, plus faible que d=34 et d=33 avec, respectivement, 3,52% et 3,42% d'erreurs
-% Il me semble donc plus raisonnable de choisir d=36 et non d=35 bien que l'on obtienne le même nombre d'erreurs sur le corpus de développement.
+% Il me semble donc plus raisonnable de choisir d=36 par rapport à ses voisins aux taux d'erreurs plus faible et non d=35 bien que l'on obtienne le même nombre d'erreurs sur le corpus de développement.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Phase d'évaluation %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-project_data(36);
+d = 36;
+project_data(d);
+
+
