@@ -47,10 +47,18 @@ function [] = project_data (k)
   	save 'data/acp/eval-acp.ascii' Ap
 endfunction
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Fonction Gaussienne %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Fonction gaussienne pour une classe donnée cl, sur un donnée x, à l'aide de la covariance et la moyenne de la classe
 function res = gaussienne (cl, x, covariance, ui, d)
 	res = 1 / (sqrt(2*pi) * det(reshape(covariance(cl+1,:,:),[d,d]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[d,d]))*(x'-ui(cl+1,:)'));
 endfunction
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Fonctions de simulation des différentes phases %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Fonction d'apprentissage qui calcul les moyennes ui et les matrices de covariances pour chaque classe
 % A partir des données d'apprentissage fournis
@@ -83,6 +91,7 @@ function [erreurs, pourcentage, confusion] = developpement (dev_cl, dev_acp, pwi
 	pourcentage = erreurs*100/(size(dev_acp.Ap,1));
 endfunction
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chargement des données fixes
 appr_cl = load("data/appr_cl.ascii");
 dev_cl = load("data/dev_cl.ascii");
