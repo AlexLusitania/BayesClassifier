@@ -51,7 +51,7 @@ endfunction
 %%%% Fonction Gaussienne %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Fonction gaussienne pour une classe donnée cl, sur un donnée x, à l'aide de la covariance et la moyenne de la classe
+% Fonction gaussienne pour une classe cl, sur une donnée x, à l'aide de la covariance et la moyenne de la classe ainsi que la taille de la projection d
 function res = gaussienne (cl, x, covariance, ui, d)
 	res = 1 / (sqrt(2*pi) * det(reshape(covariance(cl+1,:,:),[d,d]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[d,d]))*(x'-ui(cl+1,:)'));
 endfunction
@@ -60,8 +60,8 @@ endfunction
 %%%% Fonctions de simulation des différentes phases %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Fonction d'apprentissage qui calcul les moyennes ui et les matrices de covariances pour chaque classe
-% A partir des données d'apprentissage fournis
+% Fonction d'apprentissage qui calcule les moyennes ui et les matrices de covariances pour chaque classe
+% A partir des données d'apprentissage fournies
 function [ui, covariance] = apprentissage (appr_cl, appr_acp)
 	for i = 0:9
 		% Moyenne ui pour chaque classe
@@ -73,7 +73,7 @@ function [ui, covariance] = apprentissage (appr_cl, appr_acp)
 endfunction
 
 % Fonction qui fournit le nombre d'erreur, le pourcentage d'erreur et le tableau de confusion d'un système donnée
-% A partir des données de développement fournis et les probabilités à priori
+% A partir des données de développement fournies
 function [erreurs, pourcentage, confusion] = developpement (dev_cl, dev_acp, pwi, covariance, ui, d)
 	% Traitement séquentiel des exemples du corpus de développement, on compte les erreurs
 	erreurs = 0;
@@ -108,8 +108,8 @@ endfor
 % On teste avec toutes les valeurs de projection entre 10 et 100
 % L'objectif étant de trouver le meilleur d qui permet d'avoir le moins d'erreur
 % ATTENTION cette opération peut durer très longtemps (plus d'une heure), à exécuter qu'en cas de réelle nécessité (mettre best_d à 1 si besoin)
-best_d = 0;
-if (best_d == 1)
+test_meilleur_d = 0;
+if (test_meilleur_d == 1)
 	for i = 10:100 % On essaie d entre 10 et 100 arbitrairement
 		clear ui;
 		clear covariance;
@@ -146,10 +146,10 @@ if (best_d == 1)
 	endfor
 endif
 
-% Lors de l'exécution, on remarque que le meilleur d est donc 35 et 36 avec 3,36% d'erreurs dans les 2 cas
+% Lors de l'exécution, on remarque que les meilleurs d sont 35 et 36 avec 3,36% d'erreurs dans les 2 cas
 % Soit 168 erreurs sur les 5 000 exemples du corpus de développement
 % Je choisis d=36 car d=37 et d=38 ont respectivement 3,44% et 3,40% d'erreurs, plus faible que d=34 et d=33 avec, respectivement, 3,52% et 3,42% d'erreurs
-% Il me semble donc plus raisonnable de choisir d=36 par rapport à ses voisins aux taux d'erreurs plus faible et non d=35 bien que l'on obtienne le même nombre d'erreurs sur le corpus de développement.
+% Il me semble donc plus raisonnable de choisir d=36 par rapport à ses voisins qui possèdent un taux d'erreur plus faible et non d=35 bien que l'on obtienne le même nombre d'erreurs sur le corpus de développement.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% Fin des comparaisons %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -190,9 +190,16 @@ confusion
 %%%% Phase d'évaluation %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% eval_acp = load("data/acp/eval-acp.ascii");
+eval_acp = load("data/acp/eval-acp.ascii");
 
 % On traite séquentiellement chaque exemple du corpus d'évaluation
-% for 1:size(eval_acp.Ap, 1)
-	
-% endfor
+for i = 1:size(eval_acp.Ap, 1)
+	for j = 0:9
+		p(j+1) = gaussienne(j, eval_acp.Ap(i,:), covariance, ui, d) * pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+	endfor
+	[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
+	eval_cl(i,:) = indice-1; % On ajoute la classe au tableau des résultats.
+endfor
+
+% Enregistrement des classes dans un fichier externe
+save 'data/eval/eval-cl.ascii' eval_cl;
