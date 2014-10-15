@@ -53,7 +53,7 @@ endfunction
 
 % Fonction gaussienne pour une classe cl, sur une donnée x, à l'aide de la covariance et la moyenne de la classe ainsi que la taille de la projection d
 function res = gaussienne (cl, x, covariance, ui, d)
-	res = 1 / (sqrt(2*pi) * det(reshape(covariance(cl+1,:,:),[d,d]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[d,d]))*(x'-ui(cl+1,:)'));
+	res = 1 / (sqrt(2*pi)*det(reshape(covariance(cl+1,:,:),[d,d]))^(1/2)) * exp((-1/2)*(x-ui(cl+1,:))*inv(reshape(covariance(cl+1,:,:),[d,d]))*(x'-ui(cl+1,:)'));
 endfunction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,8 +93,8 @@ endfunction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Chargement des données fixes
-appr_cl = load("data/appr_cl.ascii");
-dev_cl = load("data/dev_cl.ascii");
+appr_cl = load('data/appr_cl.ascii');
+dev_cl = load('data/dev_cl.ascii');
 
 % Calcul des probabilités à priori P(wi)
 for i = 0:9
@@ -120,8 +120,8 @@ if (test_meilleur_d == 1)
 		project_data(d); % On effectue une ACP de dimension d (ou dimension i d'une certaine façon)
 
 		% Chargement des nouvelles données ACP
-		appr_acp = load("data/acp/appr-acp.ascii");
-		dev_acp = load("data/acp/dev-acp.ascii");
+		appr_acp = load('data/acp/appr-acp.ascii');
+		dev_acp = load('data/acp/dev-acp.ascii');
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		%%%% Phase d'apprentissage %%%%
@@ -140,7 +140,7 @@ if (test_meilleur_d == 1)
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 		% Affichage du nombre d'erreurs
-		disp(["Nombre d'erreurs avec d=", num2str(d), " : ", num2str(erreurs)])
+		disp(["Nombre d'erreurs avec d=", num2str(d), ' : ', num2str(erreurs)])
 		% Affichage du pourcentage d'erreur
 		disp(["Soit un pourcentage d'erreur de : ", num2str(pourcentage), '%'])
 	endfor
@@ -155,42 +155,55 @@ endif
 %%%%%%%%% Fin des comparaisons %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-d = 36;
-project_data(d); % On projète avec le meilleur d
+d = 36; % Mettre recharge_donnees à 1 si changement de d
+recharge_donnees = 0; % Mettre à 1 si besoin de (re)lancer la phase d'apprentissage et la phase de classification
+if (recharge_donnees == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('data/appr/appr-covariance.ascii') == 0))
+	project_data(d); % On projète avec le meilleur d
 
-% On recharge les données
-appr_acp = load("data/acp/appr-acp.ascii");
-dev_acp = load("data/acp/dev-acp.ascii");
+	% On recharge les données
+	appr_acp = load('data/acp/appr-acp.ascii');
+	dev_acp = load('data/acp/dev-acp.ascii');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Phase d'apprentissage %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%% Phase d'apprentissage %%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[ui, covariance] = apprentissage (appr_cl, appr_acp);
+	[ui, covariance] = apprentissage (appr_cl, appr_acp);
+	save 'data/appr/appr-ui.ascii' ui;
+	save 'data/appr/appr-covariance.ascii' covariance;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Phase de classification %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%% Phase de classification %%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[erreurs, pourcentage, confusion] = developpement (dev_cl, dev_acp, pwi, covariance, ui, d);
+	[erreurs, pourcentage, confusion] = developpement (dev_cl, dev_acp, pwi, covariance, ui, d);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Affichage des résultats %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%% Affichage des résultats %%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Affichage du nombre d'erreurs
-disp(["Nombre d'erreurs avec d=", num2str(d), " : ", num2str(erreurs)])
-% Affichage du pourcentage d'erreur
-disp(["Soit un pourcentage d'erreur de : ", num2str(erreurs*100/(size(dev_acp.Ap,1))), '%'])
-% Affichage du tableau de confusion
-disp("Tableau de confusion")
-confusion
+	% Affichage du nombre d'erreurs
+	disp(["Nombre d\'erreurs avec d=", num2str(d), ' : ', num2str(erreurs)])
+	% Affichage du pourcentage d'erreur
+	disp(["Soit un pourcentage d'erreur de : ", num2str(erreurs*100/(size(dev_acp.Ap,1))), '%'])
+	% Affichage du tableau de confusion
+	disp('Tableau de confusion')
+	confusion
+else 
+	% On recharge les données de l'ACP
+	appr_acp = load('data/acp/appr-acp.ascii');
+	dev_acp = load('data/acp/dev-acp.ascii');
+
+	% On recharge les données d'apprentissage (les moyennes et covariance de chaque classe)
+	ui = load('data/appr/appr-ui.ascii').ui;
+	covariance = load('data/appr/appr-covariance.ascii').covariance;
+endif
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Phase d'évaluation %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-eval_acp = load("data/acp/eval-acp.ascii");
+eval_acp = load('data/acp/eval-acp.ascii');
 
 % On traite séquentiellement chaque exemple du corpus d'évaluation
 for i = 1:size(eval_acp.Ap, 1)
@@ -203,3 +216,4 @@ endfor
 
 % Enregistrement des classes dans un fichier externe
 save 'data/eval/eval-cl.ascii' eval_cl;
+disp('Enregistrement des classes évaluées dans eval_cl.ascii avec succès')
