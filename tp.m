@@ -97,9 +97,15 @@ appr_cl = load('data/appr_cl.ascii');
 dev_cl = load('data/dev_cl.ascii');
 
 % Calcul des probabilités à priori P(wi)
-for i = 0:9
-	pwi(i+1) = mean(appr_cl(:) == i);
-endfor
+calcul_pwi = 0;
+if(calcul_pwi == 1)
+	for i = 0:9
+		pwi(i+1) = mean(appr_cl(:) == i);
+	endfor
+	save 'data/appr/appr-pwi.ascii' pwi;
+else
+	pwi = load('data/appr/appr-pwi.ascii').pwi;
+endif
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Comparaison des différentes projections %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
