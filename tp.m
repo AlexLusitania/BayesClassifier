@@ -5,14 +5,24 @@
 % Précise à octave que ce fichier est un fichier de script
 1;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Paramètres initiaux %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+d = 36; % Si changement de d alors mettre calcul_acp à 1 sinon l'ACP ne sera pas recalculé
+calcul_acp = 1; % 1 si recalcul de l'ACP, 0 sinon
+calcul_appr_dev = 1; % 1 si relancement de la phase d'apprentissage et développement pour d, 0 sinon
+calcul_eval = 1; % 1 si relancement de la phase d'évaluation, 0 sinon
+
+% Mettre à 1 si besoin de relancement la phase de comparaison (apprentissage + développement) de toutes les tailles d'ACP compris entre 10 et 100
+% ATTENTION cette phase peut s'avérée très longue en terme de temps d'exécution (+ d'une heure).
+comparaison = 0;
+
 %%%%%%%%%%%%%
 %%%% ACP %%%%
 %%%%%%%%%%%%%
 % Cette technique permet de réduire la dimension des données.
 % Ceci est nécessaire puisque certains points des images ont toujours la même valeur,
 % la variance est donc zéro et la matrice de covariance n'est pas inversible.
-% C'est à vous de trouver la dimension de la projection qui donne les meilleures performances
-% Vous pouvez explorer des valeurs entre 10 et 100.
 
 % Effectue une ACP de dimension k sur les données X
 % Retourne le vecteur moyen mu et la matrice de projection P
@@ -62,8 +72,10 @@ endfunction
 
 % Fonction d'apprentissage qui calcule les moyennes ui et les matrices de covariances pour chaque classe
 % A partir des données d'apprentissage fournies
-function [ui, covariance] = apprentissage (appr_cl, appr_acp)
+function [pwi, ui, covariance] = apprentissage (appr_cl, appr_acp)
 	for i = 0:9
+		pwi(i+1) = mean(appr_cl(:) == i);
+
 		% Moyenne ui pour chaque classe
 		ui(i+1,:) = mean(appr_acp.Ap(find(appr_cl(:) == i),:));
 
@@ -91,31 +103,22 @@ function [erreurs, pourcentage, confusion] = developpement (dev_cl, dev_acp, pwi
 	pourcentage = erreurs*100/(size(dev_acp.Ap,1));
 endfunction
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Chargement des données fixes
-appr_cl = load('data/appr_cl.ascii');
-dev_cl = load('data/dev_cl.ascii');
-
-% Calcul des probabilités à priori P(wi)
-calcul_pwi = 0;
-if(calcul_pwi == 1)
-	for i = 0:9
-		pwi(i+1) = mean(appr_cl(:) == i);
-	endfor
-	save 'data/appr/appr-pwi.ascii' pwi;
-else
-	pwi = load('data/appr/appr-pwi.ascii').pwi;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Chargement des données fixes %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if(calcul_appr_dev == 1 || comparaison == 1)
+	appr_cl = load('data/appr_cl.ascii');
+	dev_cl = load('data/dev_cl.ascii');
 endif
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%% Comparaison des différentes projections %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Comparaison des différentes projections %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % On teste avec toutes les valeurs de projection entre 10 et 100
 % L'objectif étant de trouver le meilleur d qui permet d'avoir le moins d'erreur
-% ATTENTION cette opération peut durer très longtemps (plus d'une heure), à exécuter qu'en cas de réelle nécessité (mettre best_d à 1 si besoin)
-test_meilleur_d = 0;
-if (test_meilleur_d == 1)
+% ATTENTION cette opération peut durer très longtemps (plus d'une heure), à exécuter qu'en cas de réelle nécessité (mettre comparaison à 1 si besoin)
+if (comparaison == 1)
 	for i = 10:100 % On essaie d entre 10 et 100 arbitrairement
 		clear ui;
 		clear covariance;
@@ -133,7 +136,7 @@ if (test_meilleur_d == 1)
 		%%%% Phase d'apprentissage %%%%
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		[ui, covariance] = apprentissage (appr_cl, appr_acp);
+		[pwi, ui, covariance] = apprentissage (appr_cl, appr_acp);
 
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		%%%% Phase de classification %%%%
@@ -152,21 +155,16 @@ if (test_meilleur_d == 1)
 	endfor
 endif
 
-% Lors de l'exécution, on remarque que les meilleurs d sont 35 et 36 avec 3,36% d'erreurs dans les 2 cas
-% Soit 168 erreurs sur les 5 000 exemples du corpus de développement
-% Je choisis d=36 car d=37 et d=38 ont respectivement 3,44% et 3,40% d'erreurs, plus faible que d=34 et d=33 avec, respectivement, 3,52% et 3,42% d'erreurs
-% Il me semble donc plus raisonnable de choisir d=36 par rapport à ses voisins qui possèdent un taux d'erreur plus faible et non d=35 bien que l'on obtienne le même nombre d'erreurs sur le corpus de développement.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Avec le meilleur d %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%% Fin des comparaisons %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (calcul_appr_dev == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('data/appr/appr-covariance.ascii') == 0))
+	if(calcul_acp == 1)
+		project_data(d); % On projète avec le meilleur d
+	endif
 
-d = 36; % Mettre recharge_donnees à 1 si changement de d
-recharge_donnees = 0; % Mettre à 1 si besoin de (re)lancer la phase d'apprentissage et la phase de classification
-if (recharge_donnees == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('data/appr/appr-covariance.ascii') == 0))
-	project_data(d); % On projète avec le meilleur d
-
-	% On recharge les données
+	% On (re)charge les données
 	appr_acp = load('data/acp/appr-acp.ascii');
 	dev_acp = load('data/acp/dev-acp.ascii');
 
@@ -174,7 +172,8 @@ if (recharge_donnees == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('
 	%%%% Phase d'apprentissage %%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	[ui, covariance] = apprentissage (appr_cl, appr_acp);
+	[pwi, ui, covariance] = apprentissage (appr_cl, appr_acp);
+	save 'data/appr/appr-pwi.ascii' pwi;
 	save 'data/appr/appr-ui.ascii' ui;
 	save 'data/appr/appr-covariance.ascii' covariance;
 
@@ -196,11 +195,8 @@ if (recharge_donnees == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('
 	disp('Tableau de confusion')
 	confusion
 else 
-	% On recharge les données de l'ACP
-	appr_acp = load('data/acp/appr-acp.ascii');
-	dev_acp = load('data/acp/dev-acp.ascii');
-
-	% On recharge les données d'apprentissage (les moyennes et covariance de chaque classe)
+	% Sinon on recharge juste les données d'apprentissage
+	pwi = load('data/appr/appr-pwi.ascii').pwi;
 	ui = load('data/appr/appr-ui.ascii').ui;
 	covariance = load('data/appr/appr-covariance.ascii').covariance;
 endif
@@ -209,17 +205,19 @@ endif
 %%%% Phase d'évaluation %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-eval_acp = load('data/acp/eval-acp.ascii');
+if(calcul_eval == 1)
+	eval_acp = load('data/acp/eval-acp.ascii');
 
-% On traite séquentiellement chaque exemple du corpus d'évaluation
-for i = 1:size(eval_acp.Ap, 1)
-	for j = 0:9
-		p(j+1) = gaussienne(j, eval_acp.Ap(i,:), covariance, ui, d) * pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+	% On traite séquentiellement chaque exemple du corpus d'évaluation
+	for i = 1:size(eval_acp.Ap, 1)
+		for j = 0:9
+			p(j+1) = gaussienne(j, eval_acp.Ap(i,:), covariance, ui, d) * pwi(j+1); % On obtient la probabilité de chaque classe sachant x
+		endfor
+		[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
+		eval_cl(i,:) = indice-1; % On ajoute la classe au tableau des résultats.
 	endfor
-	[pmax, indice] = max(p); % On prend la classe qui donne la plus grande probabilité
-	eval_cl(i,:) = indice-1; % On ajoute la classe au tableau des résultats.
-endfor
 
-% Enregistrement des classes dans un fichier externe
-save 'data/eval/eval-cl.ascii' eval_cl;
-disp('Enregistrement des classes évaluées dans eval_cl.ascii avec succès')
+	% Enregistrement des classes dans un fichier externe
+	save 'data/eval/eval-cl.ascii' eval_cl;
+	disp('Enregistrement des classes évaluées dans data/eval/eval_cl.ascii avec succès')
+endif
