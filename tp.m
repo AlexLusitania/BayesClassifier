@@ -159,7 +159,7 @@ endif
 %%%% Avec le meilleur d %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if (calcul_appr_dev == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('data/appr/appr-covariance.ascii') == 0))
+if (calcul_appr_dev == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('data/appr/appr-covariance.ascii') == 0) || (exist('data/appr/appr-pwi.ascii') == 0))
 	if(calcul_acp == 1)
 		project_data(d); % On projète avec le meilleur d
 	endif
