@@ -6,9 +6,9 @@ UE d'Apprentissage Automatique Numérique du Master 1 ISI de l'Université du Ma
 
 ### Qu'est-ce qu'un classifieur bayésien ? ###
 
-Le classifieur bayésien est un classifieur linéaire basé sur la théorie de Bayes. Il suppose qu'une classe possède certaines caractéristiques et permet de classer un exemple donné selon ces caractéristiques.
+Le classifieur bayésien est un classifieur linéaire basé sur la théorie de Bayes. Il suppose qu'une classe possède certaines caractéristiques. Il permet ensuite de classer un exemple donné selon ces caractéristiques.
 
-Ici, l'objectif est de classer les chiffres entre 0 et 9. Ces chiffres sont représentés par un vecteur de 256 valeurs (1 x 256). Le classifieur doit donc est capable de déterminer avec une certaine marge d'erreur la classe d'un exemple donné (un vecteur donné).
+Ici, l'objectif est de classer les chiffres entre 0 et 9. Chaque chiffre est représenté par un vecteur de 256 valeurs (1 x 256). Le classifieur doit donc est capable de déterminer avec une certaine marge d'erreur la classe d'un exemple donné (un vecteur donné).
 
 Une classification bayésienne se fait en 3 étapes :
 
