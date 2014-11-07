@@ -39,6 +39,9 @@ endfunction
 % Charge les données, effectue une ACP pour une dimension k données
 % et sauvegarde le résultat dans un nouveau fichier
 function [] = project_data (k)
+	if(exist('data/acp') == 0)
+		mkdir('data/acp');
+	endif
 	A=load('data/appr.ascii');
 
 	[mu_all P] = acp(A,k);
@@ -173,6 +176,9 @@ if (calcul_appr_dev == 1 || (exist('data/appr/appr-ui.ascii') == 0) || (exist('d
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	[pwi, ui, covariance] = apprentissage (appr_cl, appr_acp);
+	if(exist('data/appr/') == 0)
+		mkdir('data/appr/');
+	endif
 	save 'data/appr/appr-pwi.ascii' pwi;
 	save 'data/appr/appr-ui.ascii' ui;
 	save 'data/appr/appr-covariance.ascii' covariance;
@@ -218,6 +224,9 @@ if(calcul_eval == 1)
 	endfor
 
 	% Enregistrement des classes dans un fichier externe
+	if(exist('data/eval') == 0)
+		mkdir('data/eval');
+	endif
 	save 'data/eval/eval-cl.ascii' eval_cl;
 	disp('Enregistrement des classes évaluées dans data/eval/eval_cl.ascii avec succès')
 endif
