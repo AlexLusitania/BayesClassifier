@@ -39,8 +39,6 @@ Ici, une ACP (Analyse en Composante Principale) est effectuée sur les données 
 * Lancer le fichier de script tp.m à l'aide de la commande suivante dans l'interpréteur octave
 
 ```
-#!octave
-
 tp
 ```
 
@@ -65,8 +63,6 @@ Practical work for the *Automatic Numerical Learning* course of the first year M
 * Run the script tp.m in the octave interpreter by running the following command :
 
 ```
-#!octave
-
 tp
 ```
 
