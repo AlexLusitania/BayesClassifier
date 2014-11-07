@@ -55,12 +55,12 @@ Enfin, pour des questions de compréhension et modularité, des fonctions ont é
 
 ### Context ###
 
-Practical work for the *Automatic Numerical Learning* course of the first year Master's degree in Computer Science of the University of Maine (France). The objective was to created a Naive Bayes Classifier to determine which number is a given number represented by 256 bits.
+Practical work for the *Automatic Numerical Learning* course of the first year Master's degree in Computer Science of the University of Maine (France). The objective was to create a Naive Bayes Classifier to determine which number is a given one. A number is represented by 256 bits.
 
 ### How does it works ? ###
 
 * Get [Octave](https://www.gnu.org/software/octave/)
-* Run the script tp.m in the octave interpreter by running the following command :
+* Run the script tp.m in the Octave interpreter by running the following command :
 
 ```
 tp
