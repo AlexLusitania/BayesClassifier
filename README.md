@@ -1,4 +1,4 @@
-# [FR] Classifieur Bayésien #
+# :fr: Classifieur Bayésien #
 
 ### Dans quel cadre ? ###
 
@@ -51,7 +51,7 @@ Pour des questions de contraintes du professeur, le fichier de script tp.m poss�
 
 Enfin, pour des questions de compréhension et modularité, des fonctions ont été créés pour lancer les différentes phases, il est possible que ces fonctions ne soient pas très efficaces en terme de temps d'exécution car la copie de données très lourde et gourmande en temps. Cependant, le système final n'en sera pas préjudicié puisqu'il exécute uniquement la phase d'évaluation qui n'est pas simulée par une fonction à l'opposé des autres phases.
 
-# [EN] Bayes classifier #
+# :gb: Bayes classifier #
 
 ### Context ###
 
