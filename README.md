@@ -8,7 +8,7 @@ UE d'*Apprentissage Automatique Numérique* du Master 1 ISI de l'Université du 
 
 Le classifieur bayésien est un classifieur linéaire basé sur la théorie de Bayes. Il suppose qu'une classe possède certaines caractéristiques. Il permet ensuite de classer un exemple donné selon ces caractéristiques.
 
-Ici, l'objectif est de classer les chiffres entre 0 et 9. Chaque chiffre est représenté par un vecteur de 256 valeurs (1 x 256). Le classifieur doit donc est capable de déterminer avec une certaine marge d'erreur la classe d'un exemple donné (un vecteur donné).
+Ici, l'objectif est de classer les chiffres entre 0 et 9. Chaque chiffre est représenté par un vecteur de 256 valeurs (1 x 256). Le classifieur doit donc être capable de déterminer avec une certaine marge d'erreur la classe d'un exemple donné (un vecteur donné).
 
 Une classification bayésienne se fait en 3 étapes :
 
@@ -70,6 +70,6 @@ tp
 
 The project is in french.
 
-The script tp.m fully contains the project as the teacher required.
+The script tp.m fully contains the project (teacher's wish).
 
-For better reading purpose, functions have been created to run the different phases of the Bayes Classifier. These functions are very likely to be ressource-eager. However, as the final system only runs the final phase (evaluation phase) that won't be a problem because this is the only phase that doesn't require any of these functions to be run.
+For better reading purpose, functions have been created to run the different phases of the Bayes Classifier. These functions are very likely to be ressource-eager. However, as the final system only runs the final phase (evaluation phase) that won't be a problem because this is the only phase that doesn't require any of these functions to be runned.
