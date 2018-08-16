@@ -1,4 +1,5 @@
 # :fr: Classifieur Bayésien #
+*[:gb: version below]*
 
 ### Dans quel cadre ? ###
 
@@ -68,8 +69,8 @@ tp
 
 ### About the project ###
 
-The project is in french.
+The project is in french (school's constraint).
 
-The script tp.m fully contains the project (teacher's wish).
+The script tp.m fully contains the project (teacher's constraint).
 
 For better reading purpose, functions have been created to run the different phases of the Bayes Classifier. These functions are very likely to be ressource-eager. However, as the final system only runs the final phase (evaluation phase) that won't be a problem because this is the only phase that doesn't require any of these functions to be runned.
