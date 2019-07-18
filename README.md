@@ -13,7 +13,7 @@ Ici, l'objectif est de classer les chiffres entre 0 et 9. Chaque chiffre est rep
 
 Une classification bayésienne se fait en 3 étapes :
 
-* **Une phase d'apprentissage** : Elle permet de déterminer la probabilités à-priori, la moyenne et la matrice de covariance de chaque classe. Ces données permettent l'évaluation de la probabilité P(wi | x) qui peut être approchée par une gaussienne.
+* **Une phase d'apprentissage** : Elle permet de déterminer les probabilités à-priori, la moyenne et la matrice de covariance de chaque classe. Ces données permettent l'évaluation de la probabilité P(wi | x) qui peut être approchée par une gaussienne.
 * **Une phase de développement** : Elle compare les différentes variantes du classifieur afin de minimiser son taux d'erreur.
 * **Une phase d'évaluation** : C'est la partie qui intéresse le client, elle permet à partir des données d'apprentissage de déterminer la classe d'un exemple donné.
 
@@ -56,7 +56,7 @@ Enfin, pour des questions de compréhension et modularité, des fonctions ont é
 
 ### Context ###
 
-Practical work for the *Automatic Numerical Learning* course of the first year Master's degree in Computer Science of the University of Maine (France). The objective was to create a Naive Bayes Classifier to determine which number is a given one. A number is represented by 256 bits.
+Practical work for the *Automatic Numerical Learning* course of the first year Master's degree in Computer Science of the University of Maine (France). The objective was to create a Naive Bayes Classifier to determine which number is representing a given image. A number is represented by 256 bits.
 
 ### How does it works ? ###
 
